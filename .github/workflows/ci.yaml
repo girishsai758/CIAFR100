@@ -1,48 +1,62 @@
 # .github/workflows/train-no-docker.yml
-name: Train on EC2 (No Docker)
-
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+name: Deploy and Train CNN
+on: [push]
 
 jobs:
-  deploy-and-train:
+  deploy:
     runs-on: self-hosted
-    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    # - name: Copy files to EC2 via SCP
-    #   uses: appleboy/scp-action@v0.1.4
-    #   with:
-    #     host: ${{ secrets.EC2_HOST }}
-    #     username: ubuntu
-    #     key: ${{ secrets.EC2_SSH_KEY }}
-    #     source: "."
-    #     target: "/actions-runner"
-    
-    - name: SSH into EC2 and run training
+    # Step 1: Test SSH connection first
+    - name: Test SSH Connection
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          
-          
-          # Activate virtual environment
-          source venv/bin/activate
-          
-          # Install/update packages
-          pip install -r requirements.txt
-          
-          
-          
-          # Run training
+          echo "✓ Connected to $(hostname)"
+          echo "Creating project directory..."
+          mkdir -p /home/ubuntu/cnn-project
+          echo "Directory ready"
+    
+    # Step 2: Copy files using reliable method
+    - name: Copy files via SCP
+      run: |
+        # Create key file
+        echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ssh_key.pem
+        chmod 600 /tmp/ssh_key.pem
+        
+        # Create tarball locally
+        tar -czf /tmp/deploy.tar.gz .
+        
+        # SCP the tarball
+        scp -i /tmp/ssh_key.pem \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=30 \
+            /tmp/deploy.tar.gz \
+            ubuntu@${{ secrets.EC2_HOST }}:/tmp/
+        
+        # SSH and extract
+        ssh -i /tmp/ssh_key.pem \
+            -o StrictHostKeyChecking=no \
+            ubuntu@${{ secrets.EC2_HOST }} \
+            "mkdir -p /home/ubuntu/cnn-project && \
+             tar -xzf /tmp/deploy.tar.gz -C /home/ubuntu/cnn-project && \
+             echo 'Files deployed successfully'"
+    
+    # Step 3: Run training
+    - name: Run Training
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd /home/ubuntu/cnn-project
+          echo "Installing requirements..."
+          pip3 install -r requirements.txt || echo "No requirements.txt"
           echo "Starting training..."
-          python train.py
-          
-         
-          echo "Training completed at $(date)"
+          python3 train.py
