@@ -168,6 +168,10 @@ def evaluate_model(model, test_loader, criterion, device):
 
 # Keep an original copy of the model state dictionary
 original_mobilenet_v2_state_dict = copy.deepcopy(mobilenet_v2.state_dict())
+# This works on both Colab and your system
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f"Using device: {device}")
+
 # Load parameters from params.yaml
 with open('params.yaml', 'r') as file:
     params = yaml.safe_load(file)
