@@ -1,0 +1,3 @@
+classifier_params:
+  layer_sizes: [1280, 640, 320, 100]
+  dropout_rates: [1, 1]

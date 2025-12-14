@@ -1,0 +1,48 @@
+# .github/workflows/train-no-docker.yml
+name: Train on EC2 (No Docker)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy-and-train:
+    runs-on: self-hosted
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Copy files to EC2 via SCP
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        source: "."
+        target: "/actions-runner"
+    
+    - name: SSH into EC2 and run training
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd /home/ubuntu/cnn-project
+          
+          # Activate virtual environment
+          source venv/bin/activate
+          
+          # Install/update packages
+          pip install -r requirements.txt
+          
+          
+          
+          # Run training
+          echo "Starting training..."
+          python train.py
+          
+         
+          echo "Training completed at $(date)"

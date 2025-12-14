@@ -1,0 +1,8 @@
+mlflow==3.7.0
+dagshub==0.6.3
+torch==
+torchvision
+numpy   
+pandas
+scikit-learn
+- e .
