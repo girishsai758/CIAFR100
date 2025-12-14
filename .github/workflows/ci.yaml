@@ -14,14 +14,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Copy files to EC2 via SCP
-      uses: appleboy/scp-action@v0.1.4
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
-        source: "."
-        target: "/actions-runner"
+    # - name: Copy files to EC2 via SCP
+    #   uses: appleboy/scp-action@v0.1.4
+    #   with:
+    #     host: ${{ secrets.EC2_HOST }}
+    #     username: ubuntu
+    #     key: ${{ secrets.EC2_SSH_KEY }}
+    #     source: "."
+    #     target: "/actions-runner"
     
     - name: SSH into EC2 and run training
       uses: appleboy/ssh-action@v1.0.0
