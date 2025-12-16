@@ -90,7 +90,8 @@ try:
     test_loader = torch.utils.data.DataLoader(
         test_data,
         batch_size=32,
-        shuffle=False
+        shuffle=False,
+        
     )
 
     print("--- TESTING DATA LOADING SUCCESSFUL ---")
@@ -180,6 +181,8 @@ classifier_params = params['classifier_params']
 layer_sizes = classifier_params['layer_sizes']
 dropout_rates = classifier_params['dropout_rates']
 results_list = []
+best_acc = 0.0
+
 # Iterate through each combination of learning rates and epochs
 for j in range(0,9):
  for k in range(0,1):
