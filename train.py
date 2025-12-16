@@ -190,7 +190,7 @@ for j in range(0,9):
     optimizer = optim.Adam(mobilenet_v2.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()
     for num_epochs in epochs_list:
-        PATIENCE = 15 # Wait 15 epochs after no improvement
+        PATIENCE = 10 # Wait 15 epochs after no improvement
         MIN_DELTA = 1e-4 # Minimum improvement to be considered significant
 
         best_loss = float('inf')
@@ -220,7 +220,7 @@ for j in range(0,9):
             mlflow.log_param('layer_size4',layer_sizes[3])
 
             # Re-initialize mobilenet_v2 to its original pre-trained state
-            mobilenet_v2.load_state_dict(original_mobilenet_v2_state_dict)
+            mobilenet_v2.load_state_dict(original_mobilenet_v2_state_dict,strict=False)
             mobilenet_v2 = mobilenet_v2.to(device)
 
             # Freeze the feature layers of the re-initialized mobilenet_v2 model
