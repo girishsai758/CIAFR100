@@ -301,7 +301,9 @@ for j in range(0,9):
             # mlflow.pytorch.log_model(mobilenet_v2, "model")
 
             mlflow.end_run()
-
+    if stopped_epoch < num_epochs:
+        print(f"Training stopped early at epoch {stopped_epoch} due to early stopping and moving to next learning rate/epoch combination.")
+        break
 print("MLflow experiment loop completed, models and metrics logged.")
 def display_results(results):
     """Prints the summary table and identifies the best trial."""
