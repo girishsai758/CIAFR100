@@ -184,8 +184,8 @@ results_list = []
 best_acc = 0.0
 stopped_epoch = float('inf')
 # Iterate through each combination of learning rates and epochs
-for j in range(0,9):
- for k in range(0,1):
+for j in range(5,9):
+ for k in range(1,2):
   for lr in learning_rates:
     optimizer = optim.Adam(mobilenet_v2.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()
@@ -234,14 +234,15 @@ for j in range(0,9):
             layers = []
             input_features = layer_sizes[0]
             for i in range(len(layer_sizes) - 1):
-
-                output_features = int(layer_sizes[i + 1]/2**k)
+                if i==2:
+                  output_features = int(layer_sizes[i + 1])
+                else:
+                  output_features = int(layer_sizes[i + 1]/2**k)
                 layers.append(nn.Linear(input_features, output_features))
                 if i < len(dropout_rates):
                     layers.append(nn.ReLU())
                     layers.append(nn.Dropout(dropout_rates[i]*0.1*j))
-                elif i < len(layer_sizes) - 1:
-                    layers.append(nn.ReLU())
+                
                 input_features = output_features
             mobilenet_v2.classifier = nn.Sequential(*layers).to(device)
 
