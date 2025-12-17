@@ -182,7 +182,7 @@ layer_sizes = classifier_params['layer_sizes']
 dropout_rates = classifier_params['dropout_rates']
 results_list = []
 best_acc = 0.0
-
+stopped_epoch = float('inf')
 # Iterate through each combination of learning rates and epochs
 for j in range(0,9):
  for k in range(0,1):
@@ -192,7 +192,10 @@ for j in range(0,9):
     for num_epochs in epochs_list:
         PATIENCE = 10 # Wait 15 epochs after no improvement
         MIN_DELTA = 1e-4 # Minimum improvement to be considered significant
-
+        if stopped_epoch < num_epochs:
+          print(f"Training stopped early at epoch {stopped_epoch} due to early stopping and moving to next learning rate/epoch combination.")
+          stopped_epoch = num_epochs
+          break
         best_loss = float('inf')
         patience_counter = 0
         stopped_epoch = num_epochs
@@ -301,9 +304,7 @@ for j in range(0,9):
             # mlflow.pytorch.log_model(mobilenet_v2, "model")
 
             mlflow.end_run()
-    if stopped_epoch < num_epochs:
-        print(f"Training stopped early at epoch {stopped_epoch} due to early stopping and moving to next learning rate/epoch combination.")
-        break
+    
 print("MLflow experiment loop completed, models and metrics logged.")
 def display_results(results):
     """Prints the summary table and identifies the best trial."""
